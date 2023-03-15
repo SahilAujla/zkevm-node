@@ -61,7 +61,7 @@ type batchConstraintsFloat64 struct {
 }
 
 // newTxTracker creates and inti a TxTracker
-func newTxTracker(tx types.Transaction, isClaim bool, counters state.ZKCounters, constraints batchConstraints, weights batchResourceWeights, resourceCostMultiplier float64) (*TxTracker, error) {
+func newTxTracker(tx types.Transaction, isClaim bool, counters state.ZKCounters, constraints batchConstraintsFloat64, weights batchResourceWeights, resourceCostMultiplier float64) (*TxTracker, error) {
 	addr, err := state.GetSender(tx)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func newTxTracker(tx types.Transaction, isClaim bool, counters state.ZKCounters,
 	}
 
 	txTracker.Benefit = new(big.Int).Mul(new(big.Int).SetUint64(txTracker.Gas), txTracker.GasPrice)
-	txTracker.constraints = convertBatchConstraintsToFloat64(constraints)
+	txTracker.constraints = constraints
 	txTracker.totalWeight = float64(weights.WeightArithmetics + weights.WeightBatchBytesSize + weights.WeightBinaries + weights.WeightCumulativeGasUsed +
 		weights.WeightKeccakHashes + weights.WeightMemAligns + weights.WeightPoseidonHashes + weights.WeightPoseidonPaddings + weights.WeightSteps)
 	txTracker.weightMultipliers = calculateWeightMultipliers(weights, txTracker.totalWeight)
@@ -131,22 +131,6 @@ func (tx *TxTracker) calculateEfficiency() {
 	tx.Efficiency, accuracy = eff.Float64()
 	if accuracy != big.Exact {
 		log.Errorf("CalculateEfficiency accuracy warning (%s). Calculated=%s Assigned=%f", accuracy.String(), eff.String(), tx.Efficiency)
-	}
-}
-
-// convertBatchConstraintsToFloat64 converts the batch constraints to float64
-func convertBatchConstraintsToFloat64(constraints batchConstraints) batchConstraintsFloat64 {
-	return batchConstraintsFloat64{
-		maxTxsPerBatch:       float64(constraints.MaxTxsPerBatch),
-		maxBatchBytesSize:    float64(constraints.MaxBatchBytesSize),
-		maxCumulativeGasUsed: float64(constraints.MaxCumulativeGasUsed),
-		maxKeccakHashes:      float64(constraints.MaxKeccakHashes),
-		maxPoseidonHashes:    float64(constraints.MaxPoseidonHashes),
-		maxPoseidonPaddings:  float64(constraints.MaxPoseidonPaddings),
-		maxMemAligns:         float64(constraints.MaxMemAligns),
-		maxArithmetics:       float64(constraints.MaxArithmetics),
-		maxBinaries:          float64(constraints.MaxBinaries),
-		maxSteps:             float64(constraints.MaxSteps),
 	}
 }
 

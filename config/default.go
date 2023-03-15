@@ -104,6 +104,7 @@ MaxTxLifetime = "3h"
 		PrivateKeys = [{Path = "/pk/sequencer.keystore", Password = "testonly"}]
 	[Sequencer.DBManager]
 		PoolRetrievalInterval = "500ms"
+		L2ReorgRetrievalInterval = "5s"
 	[Sequencer.Worker]
 		ResourceCostMultiplier = 1000
 
